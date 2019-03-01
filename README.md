@@ -10,12 +10,13 @@ Azure [CLI](https://aka.ms/az-cli) and Bash
 
 # Easy Deploy!
 1. Clone this Repo
-2. edit ./simple_deployment/quickdeploy.sh or ./simple_deployment/quickdeploy.ps1 with your settings
+2. edit ./simple_deployment/quickdeploy.ps1 with your settings
 3. run ./simple_deployment/quickdeploy.ps1 -password <passsword>
 4. Connect your ShadowSocks client to the public IP address returned using the password from 3 and aes-256-cfb
 5. Configure your browser to use a socks proxy at 127.0.0.1:1080
 
 
-#Swaggy Deploy!
- - Coming Soon.  Build your container from a webhook, and keep your password safe in a KeyVault where checked out at runtime. 
+#ToDos
+ - Bash Deployment
+ - Coming Soon - Build your container from a webhook, and keep your password safe in a KeyVault where checked out at runtime!
    
