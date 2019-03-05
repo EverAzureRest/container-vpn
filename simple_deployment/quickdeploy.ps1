@@ -1,7 +1,7 @@
 param (
 [cmdletbinding()]
 $password,
-$ResourceRegion="myRegion",
+$region,
 $ResourceGroupName="shadowsocks",
 $SubscriptionID="mySubscriptionGUID",
 [switch]$delete
@@ -42,11 +42,11 @@ if ($delete){
 }
 
 Write-Debug -Message "Creating Resource Group if not exists..."
-$resourceGroupObject = get-AzResourceGroup -Name $ResourceGroupName -Location $ResourceRegion -ea 0
+$resourceGroupObject = get-AzResourceGroup -Name $ResourceGroupName -Location $region -ea 0
 
 if (!($resourceGroupObject))
     {
-        $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $ResourceRegion
+        $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $region
 }
 
 $containerParams = @{
