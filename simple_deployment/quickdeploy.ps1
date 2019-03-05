@@ -2,7 +2,7 @@ param (
 [cmdletbinding()]
 $password,
 $ResourceRegion="myRegion",
-$ResourceGroupName="myResourceGroupName",
+$ResourceGroupName="shadowsocks",
 $SubscriptionID="mySubscriptionGUID",
 [switch]$delete
 )
@@ -50,9 +50,9 @@ if (!($resourceGroupObject))
 }
 
 $containerParams = @{
-    Name = "shadowsocks-vpn"
+    Name = "shadowsocks"
     ResourceGroupName = $resourceGroupObject.ResourceGroupName
-    Command = "/usr/local/bin/ssserver -k $($password)"
+    Command = "/usr/local/bin/ssserver -k $($password) -m aes-256-cfb"
     Location = $resourceGroupObject.Location
     Image = "oddrationale/docker-shadowsocks"
     IpAddressType = "public"
