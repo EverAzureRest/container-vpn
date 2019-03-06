@@ -88,7 +88,7 @@ The deployment script will take that value and ensure we deploy to the correct s
 ```powershell 
 simple_deployment/quickdeploy.ps1 -password <passsword> -region <region>
 ```
-to deploy the server
+to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through
 
 4. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
 
@@ -112,6 +112,7 @@ to shut down the server
 ```bash 
 bash quickdeploy.sh -p <password> <region>
 ```
+to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through.
 
 4. If ShadowSocks is installed, it will connect automatically
 
