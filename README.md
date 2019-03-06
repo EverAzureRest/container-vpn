@@ -22,6 +22,8 @@ Azure [CLI](https://aka.ms/az-cli) and Bash/zsh
 
 [ShadowSocks Client](https://shadowsocks.org/en/download/clients.html)
 
+A Text Editor like Vi, Nano, Notepad, [Notepad++](https://notepad-plus-plus.org/), or my personal favorite editor [Code](https://code.visualstudio.com/)
+
 # Understanding Regions
 
 Microsoft builds Azure Datacenters all over the world in pairs of Datacenters located around Geo-political [Regions](https://azure.microsoft.com/en-us/global-infrastructure/regions/).
@@ -77,52 +79,77 @@ Either command will return all the Subscriptions that your account has access to
 The deployment script will take that value and ensure we deploy to the correct subscription
 
 **Windows:**
-1. Clone this Repo into a folder somewhere on your computer with git
-    ```bash
-    git clone https://github.com/EverAzureRest/container-vpn.git
-    ```
 
-2. edit ***simple_deployment/quickdeploy.ps1*** using a text editor with your subscription ID - see above about how to get that.  We do this to make sure you are deploying to the right Azure Subscription as it is possible to have many Subscriptions.
+1. Open PowerShell (pwsh.exe) and change to a directory that you can create new directories in. 
+```powershell
+PS> cd C:\Users\myusername\mydirectory
+```
 
-3. In PowerShell run 
+2. Clone this Repo into that folder with git
+```
+PS> git clone https://github.com/EverAzureRest/container-vpn.git
+```
+
+3. Change into the Repo Directory
+```powershell
+PS> cd container-vpn
+```
+
+4. edit ***simple_deployment/quickdeploy.ps1*** using a text editor, and where you see `$SubscriptionID="mySubscriptionGUID"` replace "mySubscriptionGUID" with your subscription Id, leaving the quotes - see the above section about retrieving your SubscriptionId.
+We do this to ensure we are deploying to the desired Azure Subscription as it is possible to have many Subscriptions.
+Make sure to **save your changes to the file before continuing**
+
+5. In PowerShell run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through
 ```powershell 
 simple_deployment/quickdeploy.ps1 -password <passsword> -region <region>
 ```
-to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through
 
-4. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
+6. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
 
-5. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/) [Chrome](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
+7. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/),  [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
 
-6. In PowerShell run 
+8. To delete/stop the server, run in PowerShell:
 ```powershell
 simple_deployment/quickdeploy.ps1 -delete
-``` 
-to shut down the server
+```
 
 **Linux:** (may work on Mac - but untested)
-1. Clone this Repo with git
-    ```bash
-    git clone https://github.com/EverAzureRest/container-vpn.git
-    ```
 
-2. edit ***simple_deployment/quickdeploy.sh*** with your subscription ID - see above about how to get that.  We do this to make sure you are deploying to the right Azure Subscription as it is possible to have many Subscriptions.
+1. Open any bash or zsh shell terminal 
 
-3. run 
-```bash 
-bash quickdeploy.sh -p <password> <region>
+2. Change to a directory to clone the Repo into
 ```
-to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through.
+cd ~/src
+```
 
-4. If ShadowSocks is installed, it will connect automatically
+3. Clone this Repo with git
+```bash
+git clone https://github.com/EverAzureRest/container-vpn.git
+```
 
-5. Configure your browser to use a SOCKS5 proxy at 127.0.0.1:1080 - [Firefox](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/) [Chrome](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
+4. Change into the Repo Directory
+```
+cd container-vpn
+```
 
-6. To disconnect run 
+5. edit ***simple_deployment/quickdeploy.sh*** using a text editor, and where you see `export SUBSCRIPTION="mySubscriptionId"` replace "mySubscriptionId" with your subscription Id, leaving the quotes - see above about retriving your SubscriptionId.
+We do this to make sure you are deploying to the right Azure Subscription as it is possible to have many Subscriptions.
+Make sure to **save your changes to the file before continuing**
+
+6. run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through.
+```bash 
+bash simple_deploy/quickdeploy.sh -p <password> <region>
+```
+
+7. If ShadowSocks is installed, it will connect automatically
+
+8. Configure your browser to use a SOCKS5 proxy at 127.0.0.1:1080 - [Firefox](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/) [Chrome](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
+
+9. To disconnect the client and delete the server, run 
 ```bash 
 bash simple_deployment/quickdeploy.sh -stop
 ```
-to stop the local shadowsocks client and delete the container
+
 
 # ToDos
  - Webhook integration, and keep your password safe in a KeyVault where checked out at runtime!
