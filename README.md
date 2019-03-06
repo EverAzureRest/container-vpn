@@ -3,7 +3,8 @@ Create a ShadowSocks SOCKS5 Proxy in an Azure Container Instance Container and r
 
 # About
 
-[Azure Container Instance](https://docs.microsoft.com/en-us/azure/container-instances/) is a small, burstable compute fabric that allows us to deploy our proxy server in a state of ephimeral compute that can be brought up or destroyed at will without any lingering data.  In other words, a little slice of compute to run the remote side of the proxy without the need for any traditional server, hardware or networking requirements.  This is otherwise known as [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code)
+[Azure Container Instance](https://docs.microsoft.com/en-us/azure/container-instances/) is a small, burstable compute fabric that allows us to deploy our proxy server in a state of ephimeral compute that can be brought up or destroyed at will without any lingering data.
+In other words, a little slice of compute to run the remote side of the proxy without the need for any traditional server, hardware or networking requirements.  This is otherwise known as [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code)
 
 Using this platform for a [SOCKS5](https://en.wikipedia.org/wiki/SOCKS) proxy server is perfect for those that need a quick connection outside their geographic region or need to escape prying eyes of Governments or ISPs
 
@@ -24,22 +25,32 @@ Azure [CLI](https://aka.ms/az-cli) and Bash/zsh
 # Understanding Regions
 
 Microsoft builds Azure Datacenters all over the world in pairs of Datacenters located around Geo-political [Regions](https://azure.microsoft.com/en-us/global-infrastructure/regions/).
+
 It's good to understand where Azure Regions are located in order to know where you can proxy your connection to. 
-If you want to proxy your connection to the US for example, you have many regions to choose from like WestUs, EastUS, EastUs2, SouthCentralUS, etc. 
+If you want to proxy your connection to the US for example, you have many regions to choose from like WestUs, EastUS, EastUs2, SouthCentralUS, etc.
+
 Luckily Azure makes it easy for us to figure out which regions the Azure service we wish to use is available in, which is covered in the next section.
 
-***Just remember to remove the spaces from the names of the Region when you deploy, i.e. East US 2 == eastus2***
 
 # Steps for a Simple Deploy!
 
 Make sure you authenticate your Azure client to Azure prior to these steps
+
 ***PowerShell:*** ```Connect-AzAccount```
+
 ***CLI:*** ```az login```
 
 Check if Azure Container Instances are available in the Region you want to deploy to:
 
-***PowerShell:*** ```(Get-AzResourceProvider -ProviderNamespace Microsoft.ContainerInstance)[0].locations```
-***CLI:*** ```az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[0].locations"```
+***PowerShell:***
+```powershell
+(Get-AzResourceProvider -ProviderNamespace Microsoft.ContainerInstance)[0].locations
+```
+
+***CLI:***
+```bash
+az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[0].locations"
+```
 
 ***Just remember to remove the spaces from the names of the Region when you deploy, i.e. East US 2 == eastus2***
 
