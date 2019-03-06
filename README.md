@@ -100,11 +100,12 @@ We do this to ensure we are deploying to the desired Azure Subscription as it is
 Make sure to **save your changes to the file before continuing**
 
 5. In PowerShell run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through
-```powershell 
+```powershell
+simple_deployment/quickdeploy.ps1 -password <password> -region <region>
 simple_deployment/quickdeploy.ps1 -password weakpassword -region eastasia
 ```
 
-6. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
+6. Connect your ShadowSocks client to the public IP address returned using your password from step 5 and aes-256-cfb cypher - options in the shadowsocks GUI
 
 7. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/),  [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
 
@@ -135,13 +136,14 @@ We do this to make sure you are deploying to the right Azure Subscription as it 
 Make sure to **save your changes to the file before continuing**
 
 5. run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through.
-```bash 
+```bash
+bash simple_deploy/quickdeploy.sh -p <password> <region>
 bash simple_deploy/quickdeploy.sh -p weakpassword japaneast
 ```
 
 6. If ShadowSocks is installed, it will connect automatically
 
-7. Configure your browser to use a SOCKS5 proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/) [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
+7. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/), [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
 
 8. To disconnect the client and delete the server, run 
 ```bash 
