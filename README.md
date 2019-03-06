@@ -1,18 +1,17 @@
 # container-vpn
 Create a ShadowSocks SOCKS5 Proxy in an Azure Container Instance Container and run a secure SOCKSv5 connection from any Azure Datacenter!
 
-#About
+# About
 
 [Azure Container Instance](https://docs.microsoft.com/en-us/azure/container-instances/) is a small, burstable compute fabric that allows us to deploy our server in a state of ephimeral compute that can be brought up or destroyed at will
 
-Using this platform for a SOCKS5 proxy server is perfect for those that need a quick connection outside their geographic region or need to escape prying eyes of Government or ISP
+Using this platform for a SOCKS5 proxy server is perfect for those that need a quick connection outside their geographic region or need to escape prying eyes of Governments or ISPs
 
 Azure Container Instances are billed on a per-second basis, therefore this will likely be a cheaper solution for most users who normally rely on monthly, paid VPN services
 
 # Dependencies
 
-[Azure](https://portal.azure.com) subscription
-Microsoft gives free 30-day trials for new accounts
+[Azure](https://portal.azure.com) subscription.  Microsoft gives free 30-day trials for new accounts
 
 Azure [CLI](https://aka.ms/az-cli) and Bash/zsh
     OR
