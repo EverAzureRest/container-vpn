@@ -11,7 +11,8 @@ Azure Container Instances are billed on a per-second basis, therefore this will 
 
 # Dependencies
 
-[Azure](https://portal.azure.com)subscription
+[Azure](https://portal.azure.com) subscription
+Microsoft gives free 30-day trials for new accounts
 
 Azure [CLI](https://aka.ms/az-cli) and Bash/zsh
     OR
@@ -26,7 +27,7 @@ Windows:
 2. edit simple_deployment/quickdeploy.ps1 with your subscription ID
 3. run ```pwsh.exe simple_deployment/quickdeploy.ps1 -password <passsword> -region <region>```
 4. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
-5. Configure your browser to use a socks proxy at 127.0.0.1:1080
+5. Configure your browser to use a SOCKS5 proxy at 127.0.0.1:1080
 6. run ```pwsh.exe simple_deployment/quickdeploy.ps1 -delete``` to shut down the server
 
 Linux (may work on Mac - but untested):
@@ -40,6 +41,6 @@ Linux (may work on Mac - but untested):
 # ToDos
  - Coming Soon - Build your container from a webhook, and keep your password safe in a KeyVault where checked out at runtime!
    
-#Credits
+# Credits
 
 [Oddrationale](https://hub.docker.com/r/oddrationale/docker-shadowsocks) on [Docker Hub](https://hub.docker.com/) for the container image
