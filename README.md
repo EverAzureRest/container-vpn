@@ -76,16 +76,19 @@ Either command will return all the Subscriptions that your account has access to
 
 The deployment script will take that value and ensure we deploy to the correct subscription
 
-Windows:
+**Windows:**
 1. Clone this Repo into a folder somewhere on your computer with git
-    `git clone https://github.com/EverAzureRest/container-vpn.git`
+    ```bash
+    git clone https://github.com/EverAzureRest/container-vpn.git
+    ```
 
 2. edit ***simple_deployment/quickdeploy.ps1*** using a text editor with your subscription ID - see above about how to get that.  We do this to make sure you are deploying to the right Azure Subscription as it is possible to have many Subscriptions.
 
 3. In PowerShell run 
 ```powershell 
 simple_deployment/quickdeploy.ps1 -password <passsword> -region <region>
-``` to deploy the server
+```
+to deploy the server
 
 4. Connect your ShadowSocks client to the public IP address returned using your password from step 3 and aes-256-cfb
 
@@ -97,7 +100,7 @@ simple_deployment/quickdeploy.ps1 -delete
 ``` 
 to shut down the server
 
-Linux (may work on Mac - but untested):
+**Linux:** (may work on Mac - but untested)
 1. Clone this Repo with git
     ```bash
     git clone https://github.com/EverAzureRest/container-vpn.git
