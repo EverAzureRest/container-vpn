@@ -7,7 +7,7 @@ $SubscriptionID="mySubscriptionGUID",
 [switch]$delete
 )
 #Check PS Version - supports Powershell 6.1
-if($PSVersionTable.PSVersion -lt 6.1.0)
+if($PSVersionTable.GitCommitId -lt 6.1.0)
     {
         ThrowError -ExceptionMessage "Please update to the latest version of PowerShell 6 or ensure script was run with pwsh.exe"
     }
