@@ -3,7 +3,7 @@ param (
 $password,
 $region,
 $ResourceGroupName="shadowsocks",
-$SubscriptionID="2a2fc8f7-6f75-4da9-96a6-b68be701e39c",
+$SubscriptionID="<mySubscription>",
 [switch]$delete
 )
 #Check PS Version - supports Powershell 6.1
