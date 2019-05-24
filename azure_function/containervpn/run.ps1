@@ -19,7 +19,7 @@ if ($params) {
     $action = $params.action
     $region = $params.region
     $dnslabel = $params.dnslabel
-    $vpnpass = $params.password
+    $vpnpass = Get-Variable -Name "AZURE_KEYVAULT_SECRET"
 
     $resourceGroupName = "shadowsocks"
 
