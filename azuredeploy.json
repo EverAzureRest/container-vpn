@@ -24,7 +24,8 @@
     },
     "variables": {
         "storageAccountName": "[concat(parameters('storageAccountName'), uniquestring(resourceGroup().id))]",
-        "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]"
+        "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
+        "appSettings": "[concat(parameters('functionAppName'), '/appsettings$')]"
     },
     "resources": [
         {
@@ -41,7 +42,7 @@
             },
             "resources": [
                 {
-                    "type": "Microsoft.KeyVault/vaults/secrets",
+                    "type": "secrets",
                     "apiVersion": "2016-10-01",
                     "name": "[concat(variables('keyVaultName'), '/VPNSecret')]",
                     "properties": {
@@ -142,7 +143,7 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2016-08-01",
-            "name": "[concat(parameters('functionAppName'), '/appSettings')]",
+            "name": "[variables('appSettings')]",
             "dependsOn": [
                 "[resourceId('Microsoft.KeyVault/vaults/secrets', '/VPNSecret')]"
             ],
@@ -154,7 +155,7 @@
         },
         {
         "type": "Microsoft.KeyVault/vaults/accessPolicies",
-        "apiVersion": "2016-10-01",
+        "apiVersion": "2015-01-01",
         "name": "FunctionAccess",
         "dependsOn": [
             "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
