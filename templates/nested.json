@@ -1,0 +1,49 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "keyVaultName":{
+            "type": "string"
+        },
+        "functionAppName": {
+            "type": "string"
+        }
+    },
+    "variables":{
+
+    },
+    "resources": [
+        {
+            "name": "[concat(parameters('keyVaultName'), 'FunctionAccess')]",
+            "type": "Microsoft.KeyVault/vaults/accessPolicies",
+            "apiVersion": "2018-02-14",
+            "dependsOn": [
+            ],
+            "properties": {
+            "accessPolicies":[
+                {
+                    "tenantid": "[subscription().tenantId]",
+                    "objectid":"[reference(concat('Microsoft.Web/sites/',  parameters('functionAppName'), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]",
+                    "permissions":{
+                        "secrets": [
+                            "get"
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2018-11-01",
+            "name": "appsettings",
+            "dependsOn": [
+            ],
+            "properties": {
+                "FUNCTIONS_EXTENSION_VERSION": "~2",
+                "FUNCTIONS_EXTENSION_RUNTIME": "powershell",
+                "AZURE_KEYVAULT_SECRET": "[concat('@Microsoft.KeyVault(SecretUri=', reference(concat('Microsoft.KeyVault/vaults', parameters('keyVaultName'), '/secrets/VPNSecret').id))]"
+                }
+        }    
+    ]
+}
