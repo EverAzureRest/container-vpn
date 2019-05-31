@@ -20,12 +20,16 @@
         },
         "vpnSecret": {
             "type": "string"
+        },
+        "baseuriRef": {
+            "type": "string",
+            "defaultValue": "https://raw.github.com/EverAzureRest/container-vpn/tree/function"
         }
     },
     "variables": {
         "storageAccountName": "[concat(parameters('storageAccountName'), uniquestring(resourceGroup().id))]",
         "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
-        "appSettings": "[concat(parameters('functionAppName'), '/appsettings$')]"
+        "templateUri": "[concat(parameters('baseuriRef'), '/templates/nested.json')]"
     },
     "resources": [
         {
@@ -141,38 +145,27 @@
             }
         },
         {
-            "type": "Microsoft.Web/sites/config",
-            "apiVersion": "2016-08-01",
-            "name": "[variables('appSettings')]",
+            "type": "Microsoft.Resources/deployments",
             "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults/secrets', '/VPNSecret')]"
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]",
+                "[resourceId('Microsoft.KeyVaults', variables('keyVaultName'))]"
             ],
+            "name": "keyVaultAccess",
             "properties": {
-                "FUNCTIONS_EXTENSION_VERSION": "~2",
-                "FUNCTIONS_EXTENSION_RUNTIME": "powershell",
-                "AZURE_KEYVAULT_SECRET": "[concat('@Microsoft.KeyVault(SecretUri=', reference(concat('Microsoft.KeyVault/vaults', parameters('keyVaultName'), '/secrets/VPNSecret').id))]"
-                }
-        },
-        {
-        "type": "Microsoft.KeyVault/vaults/accessPolicies",
-        "apiVersion": "2015-01-01",
-        "name": "FunctionAccess",
-        "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
-        ],
-        "properties": {
-        "accessPolicies":[
-            {
-                "objectid":"[reference(concat('Microsoft.Web/sites/',  parameters('functionAppName'), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]",
-                "permissions":{
-                    "secrets": [
-                        "get"
-                    ]
+                "mode":"Incremental",
+                "parameters":{
+                    "keyVaultName":{
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "functionAppName": {
+                        "value": "[parameters('functionAppName')]"
+                    }
+                },
+                "templateLink":{
+                    "uri": "[variables('templateUri')]"
                 }
             }
-        ]
-    }
-    }
+        }
     ],
     "outputs": {
         "functionUrl": {
