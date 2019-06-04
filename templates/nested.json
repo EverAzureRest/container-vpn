@@ -42,7 +42,7 @@
             "properties": {
                 "FUNCTIONS_EXTENSION_VERSION": "~2",
                 "FUNCTIONS_EXTENSION_RUNTIME": "powershell",
-                "AZURE_KEYVAULT_SECRET": "[concat('@Microsoft.KeyVault(SecretUri=', reference(concat('Microsoft.KeyVault/vaults', parameters('keyVaultName'), '/secrets/VPNSecret').id))]"
+                "AZURE_KEYVAULT_NAME": "[parameters('keyVaultName')]"
                 }
         }    
     ]
