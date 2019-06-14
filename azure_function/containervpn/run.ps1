@@ -19,7 +19,7 @@ if ($params) {
     $action = $params.action
     $region = $params.region
     $dnslabel = $params.dnslabel
-    $vpnpass = Get-Variable -Name "AZURE_KEYVAULT_SECRET"
+    $kvname = Get-Variable -Name "AZURE_KEYVAULT_NAME"
 
     $resourceGroupName = "shadowsocks"
 
@@ -32,6 +32,7 @@ if ($params) {
             if(!($resourceGroupObject)){
                 $resourceGroupObject = New-AzResourceGroup -Name $resourceGroupName -Location $region
             }
+        $vpnpass = (Get-AzKeyVaultSecret -VaultName $kvname -Name VPNSecret).SecretValueText
         $containerParams = @{
             Name = "shadowsocks"
             ResourceGroupName = $resourceGroupObject.ResourceGroupName
