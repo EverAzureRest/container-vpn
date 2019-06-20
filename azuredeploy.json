@@ -20,7 +20,7 @@
         },
         "sourceCodeRepositoryURL":{
             "type": "string",
-            "defaultValue": "https://github.com/EverAzureRest/container-vpn"
+            "defaultValue": "https://github.com/EverAzureRest/vpnfunction"
         }
     },
     "variables": {
@@ -160,10 +160,6 @@
                         {
                             "name": "AZURE_KEYVAULT_NAME",
                             "value": "[variables('keyVaultName')]"
-                        },
-                        {
-                            "name": "Project",
-                            "value": "azure_function"
                         }
                     ]
                 },
@@ -189,7 +185,7 @@
                         ],
                         "properties": {
                           "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
-                          "branch": "functionapp",
+                          "branch": "master",
                           "IsManualIntegration": false
                         }
                    }
