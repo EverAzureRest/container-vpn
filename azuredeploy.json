@@ -2,12 +2,8 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "appServicePlanName": {
-            "defaultValue": "hostingplanname",
-            "type": "string"
-        },
         "functionAppName": {
-            "defaultValue": "agenericfunctionname",
+            "defaultValue": "ccvpn",
             "type": "string"
         },
         "storageAccountName": {
@@ -19,17 +15,19 @@
             "type": "string"
         },
         "vpnSecret": {
+            "defaultValue": "ThisisaWeakpassword!",
             "type": "string"
         },
-        "baseuriRef": {
+        "sourceCodeRepositoryURL":{
             "type": "string",
-            "defaultValue": "https://raw.github.com/EverAzureRest/container-vpn/tree/function"
+            "defaultValue": "https://github.com/EverAzureRest/container-vpn"
         }
     },
     "variables": {
         "storageAccountName": "[concat(parameters('storageAccountName'), uniquestring(resourceGroup().id))]",
         "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
-        "templateUri": "[concat(parameters('baseuriRef'), '/templates/nested.json')]"
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]"
     },
     "resources": [
         {
@@ -37,24 +35,41 @@
             "apiVersion": "2016-10-01",
             "name": "[variables('keyVaultName')]",
             "location": "[resourceGroup().location]",
+            "dependsOn": [
+            ],
             "properties":{
                 "sku":{
                     "family":"A",
                     "name":"standard"
                 },
-                "tenantId": "[subscription().tenantId]"
-            },
-            "resources": [
-                {
-                    "type": "secrets",
-                    "apiVersion": "2016-10-01",
-                    "name": "[concat(variables('keyVaultName'), '/VPNSecret')]",
-                    "properties": {
-                        "value": "[parameters('vpnSecret')]",
-                        "contentType": "string"
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies":[
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId":"[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                        "permissions":{
+                            "secrets": [
+                                "get"
+                            ],
+                            "certificates":[]
+                        }
                     }
-                }
-            ]
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2016-10-01",
+            "name": "[concat(variables('keyVaultName'), '/VPNSecret')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]"
+            ],
+            "properties": {
+                "value": "[parameters('vpnSecret')]",
+                "contentType": "string"
+            }
+
         },
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -87,7 +102,7 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2016-09-01",
-            "name": "[parameters('appServicePlanName')]",
+            "name": "[parameters('functionAppName')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Y1",
@@ -98,7 +113,7 @@
             },
             "kind": "functionapp",
             "properties": {
-                "name": "[parameters('appServicePlanName')]",
+                "name": "[parameters('functionAppName')]",
                 "perSiteScaling": false,
                 "reserved": false,
                 "targetWorkerCount": 0,
@@ -111,8 +126,8 @@
             "name": "[parameters('functionAppName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]"
-                
+                "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"                
             ],
             "kind": "functionapp",
             "identity": {
@@ -120,6 +135,38 @@
             },
             "properties": {
                 "enabled": true,
+                "siteConfig":{
+                    "appSettings":[
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'),'2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[toLower(parameters('functionAppName'))]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~2"
+                        },
+                        {
+                            "name": "FUNCTIONS_WORKER_RUNTIME",
+                            "value": "powershell"
+                        },
+                        {
+                            "name": "AZURE_KEYVAULT_NAME",
+                            "value": "[variables('keyVaultName')]"
+                        },
+                        {
+                            "name": "Project",
+                            "value": "azure_function"
+                        }
+                    ]
+                },
                 "hostNameSslStates": [
                     {
                         "name": "[concat(parameters('functionAppName'), '.azurewebsites.net')]",
@@ -133,8 +180,21 @@
                     }
                 ],
                 "resources": [
+                    {
+                        "apiVersion": "2015-08-01",
+                        "name": "web",
+                        "type": "sourcecontrols",
+                        "dependsOn": [
+                          "[resourceId('Microsoft.Web/sites/', parameters('functionAppName'))]"
+                        ],
+                        "properties": {
+                          "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
+                          "branch": "functionapp",
+                          "IsManualIntegration": false
+                        }
+                   }
                 ],
-            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
             "reserved": false,
             "clientAffinityEnabled": false,
             "clientCertEnabled": false,
@@ -143,38 +203,9 @@
             "dailyMemoryTimeQuota": 0,
             "httpsOnly": false
             }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]",
-                "[resourceId('Microsoft.KeyVaults', variables('keyVaultName'))]"
-            ],
-            "name": "keyVaultAccess",
-            "properties": {
-                "mode":"Incremental",
-                "parameters":{
-                    "keyVaultName":{
-                        "value": "[parameters('keyVaultName')]"
-                    },
-                    "functionAppName": {
-                        "value": "[parameters('functionAppName')]"
-                    }
-                },
-                "templateLink":{
-                    "uri": "[variables('templateUri')]"
-                }
-            }
         }
     ],
     "outputs": {
-        "functionUrl": {
-            "type": "string",
-            "value": "[listsecrets(resourceId('Microsoft.Web/sites/functions', parameters('functionAppName'), parameters('appServicePlanName')),'2015-08-01').trigger_url]"
-        },
-        "key": {
-            "type": "string",
-            "value": "[listsecrets(resourceId('Microsoft.Web/sites/functions', parameters('functionAppName'), parameters('appServicePlanName')),'2015-08-01').key]"
-        }
+
     }
 }
