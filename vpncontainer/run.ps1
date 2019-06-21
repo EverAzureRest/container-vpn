@@ -19,7 +19,7 @@ if ($params) {
     $action = $params.action
     $region = $params.region
     $dnslabel = $params.dnslabel
-    $kvname = Get-Variable -Name "AZURE_KEYVAULT_NAME"
+    $kvname = $ENV:AZURE_KEYVAULT_NAME
 
     $resourceGroupName = "shadowsocks"
 
