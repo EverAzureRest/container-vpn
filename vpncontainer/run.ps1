@@ -20,24 +20,20 @@ if ($params) {
     $region = $params.region
     $dnslabel = $params.dnslabel
     $kvname = $ENV:AZURE_KEYVAULT_NAME
-
-    $resourceGroupName = "shadowsocks"
+    $resourceGroupName = $ENV:AZURE_RG_NAME
+    $containerName = "shadowsocks"
 
 
     if ($action -icontains "start")
     {
      try 
         {
-        $resourceGroupObject = Get-AzResourceGroup -Name $resourceGroupName -ea 0
-            if(!($resourceGroupObject)){
-                $resourceGroupObject = New-AzResourceGroup -Name $resourceGroupName -Location $region
-            }
         $vpnpass = (Get-AzKeyVaultSecret -VaultName $kvname -Name VPNSecret).SecretValueText
         $containerParams = @{
-            Name = "shadowsocks"
-            ResourceGroupName = $resourceGroupObject.ResourceGroupName
+            Name = $containerName
+            ResourceGroupName = $resourceGroupName
             Command = "/usr/local/bin/ssserver -k $($vpnpass) -m aes-256-cfb"
-            Location = $resourceGroupObject.Location
+            Location = $region
             Image = "oddrationale/docker-shadowsocks"
             IpAddressType = "public"
             DNSNameLabel = $dnslabel
@@ -58,8 +54,8 @@ if ($params) {
     }
     elseif ($action -icontains "stop")
         {
-        Remove-AzResourceGroup -Name $resourceGroupName -Force -Confirm:$false
-        $body = "$($resourceGroupName) deleted"
+        Remove-AzContainerGroup -Name $containerName -ResourceGroupName $resourceGroupName
+        $body = "$($containerName) deleted"
         }
 
 }
