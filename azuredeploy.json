@@ -36,7 +36,7 @@
         "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization', parameters('roleDefinitionName'))]",
+        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization', parameters('roleDefinitionName'))]",
         "resourceGroupName": "[resourceGroup().name]"
     },
     "resources": [
@@ -221,7 +221,7 @@
             "properties":{
                 "roleName": "[parameters('roleDefinitionName')]",
                 "description": "Allows Managed Identity to create Containter Resources in the Subscription", 
-                "type": "Custom",
+                "type": "CustomRole",
                 "permissions":[
                     {
                         "actions":[
