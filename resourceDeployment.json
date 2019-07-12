@@ -25,6 +25,9 @@
         "sourceCodeRepoBranch": {
             "type": "string",
             "defaultValue": "functionapp"
+        },
+        "roleDefinitionName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -32,7 +35,9 @@
         "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
-        "resourceGroupName": "[resourceGroup().name]"
+        "resourceGroupName": "[resourceGroup().name]",
+        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization', parameters('roleDefinitionName'))]"
+
     },
     "resources": [
         {
@@ -207,6 +212,20 @@
             "containerSize": 1536,
             "dailyMemoryTimeQuota": 0,
             "httpsOnly": false
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "roleAssignment",
+            "dependsOn": [
+                "[parameters('functionAppName')]",
+                "[variables('roleDefinitionId')]"
+            ],
+            "properties":{
+                "roleDefinitionId": "[variables('roleDefinitionId')]",
+                "principalId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
+                "scope": "[resourceGroup().id]"
             }
         }
     ],

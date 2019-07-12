@@ -44,8 +44,6 @@
         }
     },
     "variables": {
-        "identityResourceId": "[concat(resourceId(subscription().id, '/resourceGroups', parameters('resourceGroupName'), 'Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
-        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization', parameters('roleDefinitionName'))]"
     },
     "resources": [
         {
@@ -81,20 +79,6 @@
           "location": "[parameters('azureRegion')]"
         },
         {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2017-09-01",
-            "name": "roleAssignment",
-            "dependsOn": [
-                "Microsoft.Resources/deployments/resourceDeployment",
-                "[parameters('roleDefinitionName')]"
-            ],
-            "properties":{
-                "roleDefinitionId": "[variables('roleDefinitionId')]",
-                "principalId": "[reference(variables('identityResourceId'), '2015-08-31-PREVIEW').principalId]",
-                "scope": "[resourceId(subscription().id, 'Microsoft.Resources', parameters('resourceGroupName'))]"
-            }
-        },
-        {
             "type": "Microsoft.Resources/deployments",
             "name": "resourceDeployment",
             "apiVersion": "2018-05-01",
@@ -111,7 +95,8 @@
                     "keyVaultName": "[parameters('keyVaultName')]",
                     "vpnSecret": "[parameters('vpnSecret')]",
                     "sourceCodeRepositoryURL": "[parameters('sourceCodeRepositoryURL')]",
-                    "sourceCodeRepoBranch": "[parameters('sourceCodeRepoBranch')]"
+                    "sourceCodeRepoBranch": "[parameters('sourceCodeRepoBranch')]",
+                    "roleDefinitionName": "[parameters('roleDefinitionName')]"
                 },
                 "templateLink":{
                     "uri": "[parameters('nestedTemplateUri')]",
