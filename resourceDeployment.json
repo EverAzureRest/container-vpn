@@ -36,7 +36,7 @@
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
         "resourceGroupName": "[resourceGroup().name]",
-        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization', parameters('roleDefinitionName'))]"
+        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionName'))]"
 
     },
     "resources": [
@@ -217,7 +217,7 @@
         {
             "type": "Microsoft.Authorization/roleAssignments",
             "apiVersion": "2017-09-01",
-            "name": "roleAssignment",
+            "name": "[guid(resourceGroup().id, deployment().name)]",
             "dependsOn": [
                 "[parameters('functionAppName')]",
                 "[variables('roleDefinitionId')]"

@@ -20,7 +20,7 @@
         },
         "roleDefinitionName":{
             "type": "string",
-            "defaultValue": "appServiceCustomRole"
+            "defaultValue": "[guid(subscription().subscriptionId)]"
         },
         "sourceCodeRepositoryURL":{
             "type": "string",
@@ -48,11 +48,11 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/roleDefinitions",
-            "name": "[parameters('roleDefinitionName')]",
+            "name": "[guid(parameters('roleDefinitionName'))]",
             "apiVersion": "2017-09-01",
             "properties":{
-                "roleName": "[parameters('roleDefinitionName')]",
-                "description": "Allows Managed Identity to create Containter Resources in the Subscription", 
+                "roleName": "Container Custom Role",
+                "description": "Allows Managed Identity of App Services to create Containter Resources in the Subscription", 
                 "type": "CustomRole",
                 "permissions":[
                     {
