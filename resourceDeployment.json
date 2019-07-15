@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "[concat('ccvn', uniqueString(subscription().subscriptionId))]",
+            "defaultValue": "[concat('azvpn', uniqueString(subscription().subscriptionId))]",
             "type": "string"
         },
         "storageAccountName": {
@@ -36,7 +36,7 @@
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
         "resourceGroupName": "[resourceGroup().name]",
-        "roleDefinitionId": "[resourceId(subscription().id, 'Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionName'))]"
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionName'))]"
 
     },
     "resources": [
