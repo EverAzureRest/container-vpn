@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "ccvpn",
+            "defaultValue": "[concat('ccvpn', uniqueString(subscription().subscriptionId))]",
             "type": "string"
         },
         "storageAccountName": {
@@ -48,12 +48,12 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/roleDefinitions",
-            "name": "[guid(parameters('roleDefinitionName'))]",
+            "name": "[parameters('roleDefinitionName')]",
             "apiVersion": "2017-09-01",
             "properties":{
-                "roleName": "Container Custom Role",
-                "description": "Allows Managed Identity of App Services to create Containter Resources in the Subscription", 
-                "type": "CustomRole",
+                "roleName": "[parameters('roleDefinitionName')]",
+                "description": "Allows Managed Identity to create Containter Resources in the Subscription", 
+                "type": "Custom",
                 "permissions":[
                     {
                         "actions":[
@@ -90,13 +90,27 @@
             "properties":{
                 "mode":"Incremental",
                 "parameters":{
-                    "functionAppName": "[parameters('functionAppName')]",
-                    "storageAccountName": "[parameters('storageAccountName')]",
-                    "keyVaultName": "[parameters('keyVaultName')]",
-                    "vpnSecret": "[parameters('vpnSecret')]",
-                    "sourceCodeRepositoryURL": "[parameters('sourceCodeRepositoryURL')]",
-                    "sourceCodeRepoBranch": "[parameters('sourceCodeRepoBranch')]",
-                    "roleDefinitionName": "[parameters('roleDefinitionName')]"
+                    "functionAppName": {
+                        "value": "[parameters('functionAppName')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "vpnSecret": {
+                        "value": "[parameters('vpnSecret')]"
+                    },
+                    "sourceCodeRepositoryURL": {
+                        "value": "[parameters('sourceCodeRepositoryURL')]"
+                    },
+                    "sourceCodeRepoBranch": {
+                        "value": "[parameters('sourceCodeRepoBranch')]"
+                    },
+                    "roleDefinitionName": {
+                        "value": "[parameters('roleDefinitionName')]"
+                    }
                 },
                 "templateLink":{
                     "uri": "[parameters('nestedTemplateUri')]",

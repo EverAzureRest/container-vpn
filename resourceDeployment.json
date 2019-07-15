@@ -219,8 +219,7 @@
             "apiVersion": "2017-09-01",
             "name": "[guid(resourceGroup().id, deployment().name)]",
             "dependsOn": [
-                "[parameters('functionAppName')]",
-                "[variables('roleDefinitionId')]"
+                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
             ],
             "properties":{
                 "roleDefinitionId": "[variables('roleDefinitionId')]",
