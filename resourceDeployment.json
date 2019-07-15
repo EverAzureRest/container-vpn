@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "ccvpn",
+            "defaultValue": "[concat('ccvn', uniqueString(subscription().subscriptionId))]",
             "type": "string"
         },
         "storageAccountName": {
