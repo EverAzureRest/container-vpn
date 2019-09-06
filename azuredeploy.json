@@ -7,11 +7,11 @@
             "type": "string"
         },
         "storageAccountName": {
-            "defaultValue": "storage",
+            "defaultValue": "fnstorage",
             "type": "string"
         },
         "keyVaultName": {
-            "defaultValue": "keyvlt",
+            "defaultValue": "vpnkeyvlt",
             "type": "string"
         },
         "vpnSecret": {
