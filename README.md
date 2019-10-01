@@ -3,18 +3,28 @@ Create a ShadowSocks SOCKS5 Proxy in an Azure Container Instance Container and r
 
 # About
 
-[Azure Container Instance](https://docs.microsoft.com/en-us/azure/container-instances/) is a small, burstable compute fabric that allows us to deploy our proxy server in a state of ephimeral compute that can be brought up or destroyed at will without any lingering data.
+[Azure Container Instance](https://docs.microsoft.com/en-us/azure/container-instances/) is a small, burstable compute fabric that allows us to deploy our proxy server in a state of ephimeral compute that can be created or destroyed at will without any lingering data.
 In other words, a little slice of compute to run the remote side of the proxy without the need for any traditional server, hardware or networking requirements.  This is otherwise known as [Infrastructure as Code](https://en.wikipedia.org/wiki/Infrastructure_as_code)
 
 Using this platform for a [SOCKS5](https://en.wikipedia.org/wiki/SOCKS) proxy server is perfect for those that need a quick connection outside their geographic region or need to escape prying eyes of Governments or ISPs
 
 Azure Container Instances are billed on a per-second basis, therefore this will likely be a cheaper solution for most users who rely on monthly, paid VPN services
 
+# Deployment
+
+There are several ways to work with this project.  The easiest way is to use this button [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEverAzureRest%2Fcontainer-vpn%2Fmaster%2FazureDeploy.json) and follow the instructions for API deployment in this README.
+
+This will deploy an [Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that will act as an API to create your VPN on-demand.  It will store your passphrase encrypted in [Azure Keyvault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-overview), then pull the secret into the VPN container when the API is called. 
+
+The azuredeploy.sh script in this repo will serve the same function as the button above to deploy this project. 
+
+You can also follow the quick deployment setup instructions, which will use a script to control the VPN, and will not create an API.
+
 # Dependencies
 
 [git](https://git-scm.com)
 
-[Azure](https://portal.azure.com) subscription.  Microsoft gives free 30-day trials for new accounts
+[Microsoft Azure](https://portal.azure.com) subscription.  Microsoft gives free 30-day trials for new accounts
 
 Azure [CLI](https://aka.ms/az-cli) and Bash/zsh
     ***OR***
@@ -31,10 +41,80 @@ Microsoft builds Azure Datacenters all over the world in pairs of Datacenters lo
 It's good to understand where Azure Regions are located in order to know where you can proxy your connection to. 
 If you want to proxy your connection to the US for example, you have many regions to choose from like WestUs, EastUS, EastUs2, SouthCentralUS, etc.
 
-Luckily Azure makes it easy for us to figure out which regions the Azure service we wish to use is available in, which is covered in the next section.
+To check if Azure Container Instances are available in the Region you want to proxy to:
 
+***PowerShell:***
+```powershell
+(Get-AzResourceProvider -ProviderNamespace Microsoft.ContainerInstance)[0].locations
+```
 
-# Steps for a Simple Deploy!
+***CLI:***
+```bash
+az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[0].locations"
+```
+
+**Just remember to remove the spaces from the names of the Region when you deploy, i.e. East US 2 == eastus2**
+
+# API Deployment
+
+This is the easiest way to work with this project. 
+It's recommended that you fork this repo before deploying this way.  
+
+To deploy the API, use the Deploy to Azure button above and fill in the values.  If you fork the repo, make sure to change the address to the source code repo and point it to your own public repository. 
+
+When choosing a "region" in this deployment, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  
+
+The source code for the API is in the **FunctionApp** branch of this project repository. 
+
+Once the deployment completes, log into the [Azure Portal](https://portal.azure.com), and find the ***shadowsockes*** (or or the name you specified in the deployment) Resource Group. 
+
+Click on the FunctionApp
+![Find your function](images/func1.png)
+
+Click on Deployment Options
+![Deployment Options](images/func2.png)
+
+Enable the trust between the github repo and the function app.  This way, if the code changes, it is automatically deployed to the FunctionApp. 
+
+Once this is enabled, you should see a FunctionApp created and automatically deployed from the github repo.  
+![Deployed from Github](images/func3.png)
+
+Click on the FunctionApp.  The code should show up in the preview pane.  Click Get Function URL to get the URL for using the API. 
+![Click Get Function URL!](images/func4.png)
+
+## API Usage
+
+The URL for the API is unique to your API.  It contains a Key that is included in the URL that will serve as authentication to run the API.  The URL will look similar to the below example
+
+```
+https://ccvpnd3ziapvljadd2.azurewebsites.net/api/vpncontainer?code=<key value here>
+```
+The Request Body of the API call requires a JSON payload and expects two parameters to be declared in the body of the request.  
+
+Accepted parameters are: `action:start/stop` and `region:<azureregion>`.  The region must be a valid region in Azure that supports Azure Contianer Instance.  See **Understanding Regions** in this readme.
+
+Here is an example of an easy integration with Bash and CURL in order to start and stop the VPN from a script.
+
+```bash
+ACTION=$1
+REGION=$2
+URL=<URL to Function API>
+
+if [ $ACTION = "start" ]; then 
+DATA={"\action"\:"\start"\,"\region"\:"\$REGION"\}
+
+curl -D $DATA $URL
+```
+
+It returns an HTTP status code and JSON payload that contains the FQDN and the IP address of the VPN that can be used to connect to Shadowsocks. 
+
+You can use the scripts referenced below to create end-to-end automation using the REST calls instead of the container deployment.  I will update this project at a later time with these examples. 
+
+# Quick Deployment Steps via Script
+
+This will not create an API for future use, or secure your password.  ***Please note that the shadowsocks.conf file created locally will have your password in plain text.  You should take steps to secure this file and/or delete the password value after use.***
+
+This deployment is just a set of scripts that will deploy the VPN into a region you specify, and in the case of Linux, connect you automatically. 
 
 Make sure you authenticate your Azure client to Azure prior to these steps
 
@@ -47,20 +127,6 @@ Connect-AzAccount
 ```bash
 az login
 ```
-
-Check if Azure Container Instances are available in the Region you want to deploy to:
-
-***PowerShell:***
-```powershell
-(Get-AzResourceProvider -ProviderNamespace Microsoft.ContainerInstance)[0].locations
-```
-
-***CLI:***
-```bash
-az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[0].locations"
-```
-
-***Just remember to remove the spaces from the names of the Region when you deploy, i.e. East US 2 == eastus2***
 
 To get your Subscription ID:
 
@@ -107,9 +173,7 @@ simple_deployment/quickdeploy.ps1 -password weakpassword -region eastasia
 
 6. Connect your ShadowSocks client to the public IP address returned using your password from step 5 and aes-256-cfb cypher - options in the shadowsocks GUI
 
-7. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/),  [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
-
-8. To delete/stop the server, run in PowerShell:
+7. To delete/stop the server, run in PowerShell:
 ```powershell
 simple_deployment/quickdeploy.ps1 -delete
 ```
@@ -143,17 +207,14 @@ bash simple_deploy/quickdeploy.sh -p weakpassword japaneast
 
 6. If ShadowSocks is installed, it will connect automatically
 
-7. Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/), [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
-
-8. To disconnect the client and delete the server, run 
+7. To disconnect the client and delete the server, run 
 ```bash 
 bash simple_deployment/quickdeploy.sh -stop
 ```
 
+# Connecting to the VPN
 
-# ToDos
- - Webhook integration, and keep your password safe in a KeyVault where checked out at runtime!
- - Integrate private container registry and build from dockerfile
+Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox Instructions](https://www.howtogeek.com/293213/how-to-configure-a-proxy-server-in-firefox/), [Chrome Instructions](https://productforums.google.com/d/msg/chrome/9IDWpZ5-RAM/v68jStH77loJ)
    
 # Credits
 

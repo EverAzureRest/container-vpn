@@ -146,6 +146,11 @@
             "properties": {
                 "enabled": true,
                 "siteConfig":{
+                    "cors":{
+                        "allowedOrigins":[
+                            "*"
+                        ]
+                    },
                     "appSettings":[
                         {
                             "name": "AzureWebJobsStorage",
@@ -191,7 +196,7 @@
                 ],
                 "resources": [
                     {
-                        "apiVersion": "2015-08-01",
+                        "apiVersion": "2016-08-01",
                         "name": "web",
                         "type": "sourcecontrols",
                         "dependsOn": [
@@ -200,7 +205,7 @@
                         "properties": {
                           "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
                           "branch": "[parameters('sourceCodeRepoBranch')]",
-                          "IsManualIntegration": false
+                          "IsManualIntegration": true
                         }
                    }
                 ],

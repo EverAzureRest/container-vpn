@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "[concat('ccvpn', uniqueString(subscription().subscriptionId))]",
+            "defaultValue": "[concat('azvpn', uniqueString(subscription().subscriptionId))]",
             "type": "string"
         },
         "storageAccountName": {
@@ -15,7 +15,7 @@
             "type": "string"
         },
         "vpnSecret": {
-            "defaultValue": "ThisisaWeakpassword!",
+            "defaultValue": "ThisisaWeakpassword!ChangeME",
             "type": "string"
         },
         "roleDefinitionName":{
@@ -36,7 +36,10 @@
         },
         "azureRegion": {
             "type": "string",
-            "defaultValue": "eastus2"
+            "defaultValue": "eastus2",
+            "metadata": {
+                "description": "Region where the Function App will be deployed.  The VPN region is applied at runtime"
+            }
         },
         "nestedTemplateUri": {
             "type": "string",
@@ -51,8 +54,8 @@
             "name": "[parameters('roleDefinitionName')]",
             "apiVersion": "2017-09-01",
             "properties":{
-                "roleName": "[parameters('roleDefinitionName')]",
-                "description": "Allows Managed Identity to create Containter Resources in the Subscription", 
+                "roleName": "[concat('appServiceCustomRole', parameters('roleDefinitionName'))]",
+                "description": "Allows Managed Identity for the Function App to create Containter Resources in the Subscription", 
                 "type": "CustomRole",
                 "permissions":[
                     {
