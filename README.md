@@ -12,11 +12,11 @@ Azure Container Instances are billed on a per-second basis, therefore this will 
 
 # Deployment
 
-There are several ways to work with this project.  The easiest way is to use this button [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEverAzureRest%2Fcontainer-vpn%2Fmaster%2FazureDeploy.json) and follow the instructions for API deployment in this README.
+There are several ways to work with this project.  The easiest way is to use this button [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEverAzureRest%2Fcontainer-vpn%2Fmaster%2Fazuredeploy.json) and follow the instructions for API deployment in this README.
 
 This will deploy an [Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that will act as an API to create your VPN on-demand.  It will store your passphrase encrypted in [Azure Keyvault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-overview), then pull the secret into the VPN container when the API is called. 
 
-The azuredeploy.sh script in this repo will serve the same function as the button above to deploy this project. 
+The azuredeploy.sh script in this repo will serve the same function as the button above to deploy this project. **Note - ensure that you change the password in the [azuredeploy.parameters.json](./azuredeploy.parameters.json) file prior to using this script**
 
 You can also follow the quick deployment setup instructions, which will use a script to control the VPN, and will not create an API.
 
