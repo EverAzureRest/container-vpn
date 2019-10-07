@@ -1,4 +1,4 @@
-# container-vpn
+# Azure Container VPN
 Create a ShadowSocks SOCKS5 Proxy in an Azure Container Instance Container and run a secure SOCKSv5 connection from any Azure Datacenter!
 
 # About
@@ -12,13 +12,13 @@ Azure Container Instances are billed on a per-second basis, therefore this will 
 
 # Deployment
 
-There are several ways to work with this project.  The easiest way is to use this button [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEverAzureRest%2Fcontainer-vpn%2Fmaster%2Fazuredeploy.json) and follow the instructions for API deployment in this README.
+There are multiple ways to work with this project, the easiest is to use the [azuredeploy.sh](./azuredeploy.sh) script in this repo to deploy this project. **Note - ensure that you change the password in the [azuredeploy.parameters.json](./azuredeploy.parameters.json) file prior to using this script** and follow the instructions for API deployment in this README.
 
-This will deploy an [Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) that will act as an API to create your VPN on-demand.  It will store your passphrase encrypted in [Azure Keyvault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-overview), then pull the secret into the VPN container when the API is called. 
+This will deploy an [Azure Function](https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview) in a free/consumption-based App Service Plan, which will act as an API to create your VPN on-demand.  It will store your passphrase encrypted in [Azure Keyvault](https://docs.microsoft.com/en-us/azure/key-vault/key-vault-overview), then pull the secret into the VPN container when the API is called.
 
-The azuredeploy.sh script in this repo will serve the same function as the button above to deploy this project. **Note - ensure that you change the password in the [azuredeploy.parameters.json](./azuredeploy.parameters.json) file prior to using this script**
+We will delegate access to the [Managed Identity](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity) of the FunctionApp and grant access to the Function App for reading the secret in KeyVault and creating the Azure Container Instance resource to run the remote side of the VPN.
 
-You can also follow the quick deployment setup instructions, which will use a script to control the VPN, and will not create an API.
+You can also follow the quick deployment setup instructions, which will use a script to create/destroy the VPN, and not create an API.
 
 # Dependencies
 
@@ -60,13 +60,13 @@ az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[
 This is the easiest way to work with this project. 
 It's recommended that you fork this repo before deploying this way.  
 
-To deploy the API, use the Deploy to Azure button above and fill in the values.  If you fork the repo, make sure to change the address to the source code repo and point it to your own public repository. 
+To deploy the API, clone this repository and edit [azuredeploy.sh](./azuredeploy.sh) and change this variable: `export SUBSCRIPTIONID="mySubscriptionIDorName"` to reflect your subscription name or ID.  Edit [azuredeploy.parameters.json](./azuredeploy.parameters.json) and replace the value for the password to one of your choosing. If you fork the repo, make sure to change the URL value for `"sourceCodeRepositoryURL"` and point it to your own public repository. 
 
-When choosing a "region" in this deployment, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  
+When editing "region" in this deployment, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  The region where the VPN will run is a parameter declared when the API is called. 
 
 The source code for the API is in the **FunctionApp** branch of this project repository. 
 
-Once the deployment completes, log into the [Azure Portal](https://portal.azure.com), and find the ***shadowsockes*** (or or the name you specified in the deployment) Resource Group. 
+Once the deployment completes, log into the [Azure Portal](https://portal.azure.com), and find the ***shadowsocks*** (or or the name you specified in the deployment) Resource Group. 
 
 Click on the FunctionApp
 ![Find your function](images/func1.png)
@@ -74,7 +74,7 @@ Click on the FunctionApp
 Click on Deployment Options
 ![Deployment Options](images/func2.png)
 
-Enable the trust between the github repo and the function app.  This way, if the code changes, it is automatically deployed to the FunctionApp. 
+Enable the trust between the forked github repo and the Function App.  This way, if you decide to iterate the Function App code, it will be automatically deployed to the FunctionApp. 
 
 Once this is enabled, you should see a FunctionApp created and automatically deployed from the github repo.  
 ![Deployed from Github](images/func3.png)
@@ -93,7 +93,7 @@ The Request Body of the API call requires a JSON payload and expects two paramet
 
 Accepted parameters are: `action:start/stop` and `region:<azureregion>`.  The region must be a valid region in Azure that supports Azure Contianer Instance.  See **Understanding Regions** in this readme.
 
-Here is an example of an easy integration with Bash and CURL in order to start and stop the VPN from a script.
+Here is an example of an easy integration with Bash and CURL in order to start and stop the VPN using the API from a script.
 
 ```bash
 ACTION=$1
@@ -106,7 +106,7 @@ DATA={"\action"\:"\start"\,"\region"\:"\$REGION"\}
 curl -D $DATA $URL
 ```
 
-It returns an HTTP status code and JSON payload that contains the FQDN and the IP address of the VPN that can be used to connect to Shadowsocks. 
+It returns an HTTP status code and JSON payload that contains the FQDN and the IP address of the VPN that can be used to connect the Shadowsocks client to. 
 
 You can use the scripts referenced below to create end-to-end automation using the REST calls instead of the container deployment.  I will update this project at a later time with these examples. 
 

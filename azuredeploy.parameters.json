@@ -4,6 +4,9 @@
 "parameters": {
     "vpnSecret": {
         "value": "ThisIsaWeakPassword!"
+    },
+    "sourceCodeRepositoryURL":{
+        "value": "https://github.com/EverAzureRest/container-vpn"
     }
 }
 }
