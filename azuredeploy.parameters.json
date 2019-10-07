@@ -3,16 +3,13 @@
 "contentVersion": "1.0.0.0",
 "parameters": {
     "vpnSecret": {
-        "value": "ThisIsaWeakPassword!"
+        "value": "ThisIsaWeakPassword!ChangeME"
     },
     "sourceCodeRepositoryURL":{
         "value": "https://github.com/EverAzureRest/container-vpn"
     },
     "azureRegion": {
-        "value": "eastus2",
-        "metadata": {
-            "description": "Azure Region where the FunctionApp API resources will be deployed.  VPN Region is determined at Runtime."
-        }
+        "value": "eastus2"
     }
 }
 }

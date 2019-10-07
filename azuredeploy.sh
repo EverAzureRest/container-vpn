@@ -1,7 +1,8 @@
 #!/bin/bash
-export SUBSCRIPTIONID="mySubscriptionIDorName"
+export SUBSCRIPTIONID="jorsmith-contosodemo"
 export PARAMS="./azuredeploy.parameters.json"
 export DEPLOYMENTFILE="./azuredeploy.json"
+export DEPLOYMENTREGION="eastus2"
 
 
 
@@ -17,7 +18,7 @@ if [ "$SESSION_SUB" = /dev/null ]; then
     printf "Azure Session not valid, initiating login"
     az account login
 elif [ "$SESSION_SUB" != $SUBSCRIPTIONID ]; then
-    az account set -s $SUBSCRIPTION
+    az account set -s $SUBSCRIPTIONID
 fi
 
-az deployment create -n "vpnServicesDeployment" --template-file $DEPLOYMENTFILE --parameters $PARAMS
+az deployment create -n "vpnServicesDeployment" --template-file $DEPLOYMENTFILE --parameters $PARAMS -l $DEPLOYMENTREGION
