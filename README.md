@@ -63,6 +63,8 @@ It's recommended that you fork this repo before deploying this way.
 To deploy the API, clone this repository and edit [azuredeploy.sh](./azuredeploy.sh) and change this variable: `export SUBSCRIPTIONID="mySubscriptionIDorName"` to reflect your subscription name or ID.  Edit [azuredeploy.parameters.json](./azuredeploy.parameters.json) and replace the value for the password to one of your choosing. If you fork the repo, make sure to change the URL value for `"sourceCodeRepositoryURL"` and point it to your own public repository. 
 
 When editing "region" in this deployment, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  The region where the VPN will run is a parameter declared when the API is called. 
+***Note - As of this release - Azure Functions with PowerShell is in public preview***
+[More Info](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-function-powershell#next-steps)
 
 The source code for the API is in the **FunctionApp** branch of this project repository. 
 
