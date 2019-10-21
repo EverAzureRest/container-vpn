@@ -3,7 +3,13 @@
 "contentVersion": "1.0.0.0",
 "parameters": {
     "vpnSecret": {
-        "value": "ThisIsaWeakPassword!"
+        "value": "ThisIsaWeakPassword!ChangeME"
+    },
+    "sourceCodeRepositoryURL":{
+        "value": "https://github.com/EverAzureRest/container-vpn"
+    },
+    "azureRegion": {
+        "value": "eastus2"
     }
 }
 }
