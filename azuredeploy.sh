@@ -1,5 +1,5 @@
 #!/bin/bash
-export SUBSCRIPTIONID="mySubscriptionIDorName"
+export SUBSCRIPTIONID="mySubscriptionID"
 export PARAMS="./azuredeploy.parameters.json"
 export DEPLOYMENTFILE="./azuredeploy.json"
 export DEPLOYMENTREGION="eastus2"
