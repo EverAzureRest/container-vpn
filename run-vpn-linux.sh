@@ -35,7 +35,7 @@ if [ $ACTION == "start" ]; then
 
     PWD=$(az keyvault secret show -n vpnsecret --vault-name $KEYVAULTNAME --query "value" -o tsv)
 
-    SOCKSCONF="{\"server\":\"$SERVICEIP\",\"server_port\":\"8388\",\"local_address\":\"127.0.0.1\",\"local_port\":\"1080\",\"password\":\"$PWD\",\"timeout\":\"600\",\"method\":\"aes-256-cfb\"}"
+    SOCKSCONF="{\"server\":\"$SERVICEIP\",\"server_port\":\"8388\",\"local_address\":\"127.0.0.1\",\"local_port\":\"1080\",\"password\":\"$PWD\",\"timeout\":\"600\",\"method\":\"aes-256-gcm\"}"
 
     echo $SOCKSCONF > ~/.config/socks-config.json
 
