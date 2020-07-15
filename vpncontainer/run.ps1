@@ -29,12 +29,15 @@ if ($params) {
      try 
         {
         $vpnpass = (Get-AzKeyVaultSecret -VaultName $kvname -Name VPNSecret).SecretValueText
+        $envVars = @{
+            PASSWORD = $vpnpass
+        }
         $containerParams = @{
             Name = $containerName
             ResourceGroupName = $resourceGroupName
-            Command = "/usr/local/bin/ssserver -k $($vpnpass) -m aes-256-cfb"
+            EnvironmentVariable = $envVars
             Location = $region
-            Image = "oddrationale/docker-shadowsocks"
+            Image = "shadowsocks/shadowsocks-libev"
             IpAddressType = "public"
             DNSNameLabel = $dnslabel
             Port = 8388
