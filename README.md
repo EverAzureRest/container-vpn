@@ -19,7 +19,7 @@ This will deploy an [Azure Function](https://docs.microsoft.com/en-us/azure/azur
 
 We will delegate access to the [Managed Identity](https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity) of the FunctionApp and grant access for reading the secret in KeyVault and creating the Azure Container Instance resource to run the remote side of the VPN.
 
-If this all sounds way complicated, you can also follow the quick deployment setup instructions, which will use a simple script to create/destroy the VPN, and not create an API.
+If this all sounds way complicated, follow the ***simple setup instructions*** below, which will use a simple script to create/destroy the VPN, and not create an API.
 
 The advantage of creating the API, is that you won't be restricted to the scripts to run the VPN.  You could create a mobile or web app, for instance that calls your API to create your VPN.
 
@@ -60,82 +60,9 @@ az provider show --namespace Microsoft.ContainerInstance --query "resourceTypes[
 
 **Just remember to remove the spaces from the names of the Region when you deploy, i.e. East US 2 == eastus2**
 
-## API Deployment
-
-This is the recommended way to work with this project.
-I also recommend that you fork this repo before deploying.  
-
-To deploy the API, clone this repository and edit [azuredeploy.sh](./azuredeploy.sh) and change this variable: `export SUBSCRIPTIONID="mySubscriptionID"` to reflect your subscription ID.
-
-To retrieve your Subscription ID, use `az account show`
-
-Edit [azuredeploy.parameters.json](./azuredeploy.parameters.json) and replace the value for the password to one of your choosing. If you forked the repo, make sure to change the URL value for `"sourceCodeRepositoryURL"` and point it to your own public repository.
-
-When editing `azureRegion` in the parameters file, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  The region where the VPN will run is a parameter declared when the API is called.
-***Note - As of this release - Azure Functions with PowerShell is in public preview***
-[More Info](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-function-powershell#next-steps)
-
-The source code for the API is in the **FunctionApp** branch of this project repository.
-
-After editing the [azuredeploy.sh](./azuredeploy.sh) script, the [azuredeploy.paramters.json](./azuredeploy.parameters.json) parameters file, and verifying that the dependencies above are satisfied, run the deployment script:
-
-```bash
-sh azuredeploy.sh
-```
-
-Once the deployment completes, log into the [Azure Portal](https://portal.azure.com), and find the ***shadowsocks*** Resource Group. 
-
-Click on the FunctionApp
-![Find your function](images/func1.png)
-
-Click on Deployment Options
-![Deployment Options](images/func2.png)
-
-Enable the trust between the forked github repo and the Function App.  This way, if you decide to iterate the Function App code, it will be automatically deployed to the FunctionApp. 
-
-Once this is enabled, you should see a FunctionApp created and automatically deployed from the github repo.  
-![Deployed from Github](images/func3.png)
-
-Click on the FunctionApp.  The code should show up in the preview pane.  Click Get Function URL to get the URL for using the API. 
-![Click Get Function URL!](images/func4.png)
-
-## API Usage
-
-The URL for the API is unique to your API.  It contains a Key that is included in the URL that will serve as authentication to run the API.  The URL will look similar to the below example
-
-`https://ccvpnd3ziapvljadd2.azurewebsites.net/api/vpncontainer?code=<key value here>`
-
-If you want to store the URL in a safe location, upload it as a secret to your KeyVault. The [run-vpn-linux](./run-vpn-linux.sh) script will use your KeyVault Name and the secret name as a variable to grab the URL at runtime, that way it's stored in a safe and secure location.  To store your URL, just run the following command:
-
- ```bash
- az keyvault secret set --vaultname <yourKeyVault> -n vpnwebhook --value <urlValueFromAbove>
- ```
-
-The Request Body of the API call requires a JSON payload and expects three parameters to be declared in the body of the request.  
-
-Accepted parameters are: `action:start/stop` , `region:<azureregion>` and `dnslabel:<dnslabel>`. The DNS Label can be any alphanumeric string value. The region must be a valid region in Azure that supports Azure Contianer Instance.  See **Understanding Regions** in this readme.
-
-Here is an example of an easy integration with Bash and CURL in order to start and stop the VPN using the API from a script.
-
-```bash
-ACTION=$1
-REGION=$2
-DNSLABEL=$3
-URL=<URL to Function API>
-
-if [ $ACTION = "start" ]; then 
-DATA={"\action"\:"\start"\,"\region"\:"\$REGION"\,"\DNSLABEL"\:"\$DNSLABEL"\}
-
-curl -D $DATA $URL
-```
-
-It returns an HTTP status code and JSON payload that contains the FQDN and the IP address of the VPN that can be used to connect the Shadowsocks client to. 
-
-You can use the [run-vpn-linux](./run-vpn-linux.sh) script to connect to the VPN or create your own.  I will update with a PowerShell script at a later date
-
 ## Quick Deployment Steps via Script
 
-This will not create an API for future use, or secure your password.  ***Please note that the shadowsocks.conf file created locally will have your password in plain text.  You should take steps to secure this file and/or delete the password value after use.***
+This will not create an API for future use, or secure your password.  ***Please note that the shadowsocks.conf file created locally will have your password in plain text.  You should take steps to secure this file and/or delete the password value or config file after use.***
 
 This deployment is just a set of scripts that will deploy the VPN into a region you specify, and in the case of Linux, connect you automatically. 
 
@@ -191,15 +118,15 @@ PS> git clone https://github.com/EverAzureRest/container-vpn.git
 PS> cd container-vpn
 ```
 
-4. edit ***simple_deployment/quickdeploy.ps1*** using a text editor, and where you see `$SubscriptionID="mySubscriptionGUID"` replace "mySubscriptionGUID" with your subscription Id, leaving the quotes - see the above section about retrieving your SubscriptionId.
+4. edit ***simple_deployment/Create-QuickVPN.ps1*** using a text editor, and where you see `$SubscriptionID="mySubscriptionGUID"` replace "mySubscriptionGUID" with your subscription Id, leaving the quotes - see the above section about retrieving your SubscriptionId.
 We do this to ensure we are deploying to the desired Azure Subscription as it is possible to have many Subscriptions.
 Make sure to **save your changes to the file before continuing**
 
-5. In PowerShell run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through
+5. In PowerShell run the script to deploy the server where `<region>` is the Azure Region you want to proxy your connection through.  The script will securely prompt for the password you want to set on the remote end.
 
 ```powershell
-simple_deployment/quickdeploy.ps1 -password <password> -region <region>
-simple_deployment/quickdeploy.ps1 -password weakpassword -region eastasia
+simple_deployment/Create-QuickVPN.ps1 -region <region>
+simple_deployment/Create-QuickVPN.ps1 -region eastasia
 ```
 
 6. Connect your ShadowSocks client to the public IP address returned using your password from step 5 and aes-256-cfb cypher - options in the shadowsocks GUI
@@ -207,7 +134,7 @@ simple_deployment/quickdeploy.ps1 -password weakpassword -region eastasia
 7. To delete/stop the server, run in PowerShell:
 
 ```powershell
-simple_deployment/quickdeploy.ps1 -delete
+simple_deployment/Create-QuickVPN.ps1 -delete
 ```
 
 ### Linux: (may work on Mac - but untested)
@@ -230,15 +157,15 @@ git clone https://github.com/EverAzureRest/container-vpn.git
 cd container-vpn
 ```
 
-4. edit ***simple_deployment/quickdeploy.sh*** using a text editor, and where you see `export SUBSCRIPTION="mySubscriptionId"` replace "mySubscriptionId" with your subscription Id, leaving the quotes - see above about retreiving your SubscriptionId.
+4. edit ***simple_deployment/quick_vpn.sh*** using a text editor, and where you see `export SUBSCRIPTION="mySubscriptionId"` replace "mySubscriptionId" with your subscription Id, leaving the quotes - see above about retreiving your SubscriptionId.
 We do this to make sure you are deploying to the right Azure Subscription as it is possible to have many Subscriptions.
 Make sure to **save your changes to the file before continuing**
 
 5. run the script to deploy the server where `<password>` is your desired password to connect to the proxy server and `<region>` is the Azure Region you want to proxy your connection through.
 
 ```bash
-bash simple_deploy/quickdeploy.sh -p <password> <region>
-bash simple_deploy/quickdeploy.sh -p weakpassword japaneast
+bash simple_deploy/quick_vpn.sh -p <password> <region>
+bash simple_deploy/quick_vpn.sh -p weakpassword japaneast
 ```
 
 6. If ShadowSocks is installed, it will connect automatically
@@ -246,8 +173,79 @@ bash simple_deploy/quickdeploy.sh -p weakpassword japaneast
 7. To disconnect the client and delete the server, run
 
 ```bash
-bash simple_deployment/quickdeploy.sh -stop
+bash simple_deployment/quick_vpn.sh -stop
 ```
+
+## API Deployment
+
+This is the recommended way to work with this project.
+I also recommend that you fork this repo before deploying.  
+
+To deploy the API, clone this repository and edit [azuredeploy.sh](./azuredeploy.sh) and change this variable: `export SUBSCRIPTIONID="mySubscriptionID"` to reflect your subscription ID.
+
+To retrieve your Subscription ID, use `az account show`
+
+Edit [azuredeploy.parameters.json](./azuredeploy.parameters.json) and replace the value for the password to one of your choosing. If you forked the repo, make sure to change the URL value for `"sourceCodeRepositoryURL"` and point it to your own public repository.
+
+When editing `azureRegion` in the parameters file, please note that this is the region where the resources for API will reside, not where the VPN is going to run.  The region where the VPN will run is a parameter declared when the API is called.
+
+The source code for the API is in the **FunctionApp** branch of this project repository.
+
+After editing the [azuredeploy.sh](./azuredeploy.sh) script, the [azuredeploy.paramters.json](./azuredeploy.parameters.json) parameters file, and verifying that the dependencies above are satisfied, run the deployment script:
+
+```bash
+sh azuredeploy.sh
+```
+
+Once the deployment completes, log into the [Azure Portal](https://portal.azure.com), and find the ***shadowsocks*** Resource Group. 
+
+Click on the FunctionApp
+![Find your function](images/func1.png)
+
+Click on Deployment Options
+![Deployment Options](images/func2.png)
+
+Enable the trust between the forked github repo and the Function App.  This way, if you decide to iterate the Function App code, it will be automatically deployed to the FunctionApp. 
+
+Once this is enabled, you should see a FunctionApp created and automatically deployed from the github repo.  
+![Deployed from Github](images/func3.png)
+
+Click on the FunctionApp.  The code should show up in the preview pane.  Click Get Function URL to get the URL for using the API. 
+![Click Get Function URL!](images/func4.png)
+
+## API Usage
+
+The URL for the API is unique to your API.  It contains a Key that is included in the URL that will serve as authentication to run the API.  The URL will look similar to the below example
+
+`https://ccvpnd3ziapvljadd2.azurewebsites.net/api/vpncontainer?code=<key value here>`
+
+If you want to store the URL in a safe location, upload it as a secret to your KeyVault. The [run-vpn-linux](./run-vpn-linux.sh) script will use your KeyVault Name and the secret name as a variable to grab the URL at runtime, that way it's stored in a safe and secure location.  To store your URL, just run the following command:
+
+ ```bash
+ az keyvault secret set --vaultname <yourKeyVault> -n vpnwebhook --value <urlValueFromAbove>
+ ```
+
+The Request Body of the API call requires a JSON payload and expects three parameters to be declared in the body of the request.  
+
+Accepted parameters are: `action:start/stop` , `region:<azureregion>` and `dnslabel:<dnslabel>`. The DNS Label can be any alphanumeric string value. The region must be a valid region in Azure that supports Azure Contianer Instance.  See **Understanding Regions** in this readme.
+
+Here is an example of an easy integration with Bash and CURL in order to start and stop the VPN using the API from a script.
+
+```bash
+ACTION=$1
+REGION=$2
+DNSLABEL=$3
+URL=<URL to Function API>
+
+if [ $ACTION = "start" ]; then
+DATA={"\action"\:"\start"\,"\region"\:"\$REGION"\,"\DNSLABEL"\:"\$DNSLABEL"\}
+
+curl -D $DATA $URL
+```
+
+It returns an HTTP status code and JSON payload that contains the FQDN and the IP address of the VPN that can be used to connect the Shadowsocks client to. 
+
+You can use the [run-vpn-linux](./run-vpn-linux.sh) script to connect to the VPN or create your own.  I will update with a PowerShell script at a later date
 
 ## Connecting to the VPN
 
@@ -255,4 +253,4 @@ Configure your browser to use a ***SOCKS5*** proxy at 127.0.0.1:1080 - [Firefox 
 
 ## Credits
 
-[Oddrationale](https://hub.docker.com/r/oddrationale/docker-shadowsocks) on [Docker Hub](https://hub.docker.com/) for the container image
+[Oddrationale](https://hub.docker.com/r/oddrationale/docker-shadowsocks) on [Docker Hub](https://hub.docker.com/) for the container image - [Source](https://github.com/oddrationale/docker-shadowsocks/blob/master/Dockerfile)

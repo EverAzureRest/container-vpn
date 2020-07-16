@@ -1,12 +1,11 @@
-param (
 [cmdletbinding()]
-$password,
+param (
 $region,
-$ResourceGroupName="shadowsocks",
-$SubscriptionID="<mySubscription>",
+$ResourceGroupName = "shadowsocks",
+$SubscriptionID = "mySubscriptionID",
 [switch]$delete
 )
-#Check PS Version - supports Powershell 6.1
+#Check PS Version - supports >= Powershell 6.1
 if($PSVersionTable.GitCommitId -lt 6.1.0)
     {
         ThrowError -ExceptionMessage "Please update to the latest version of PowerShell 6 or ensure script was run with pwsh.exe"
@@ -37,7 +36,14 @@ elseif ($session.Subscription -ne $subscriptionID) {
 }
 
 if ($delete){
-    Remove-AzResourceGroup -Name $ResourceGroupName -Force -Confirm:$false
+    try {
+        Remove-AzResourceGroup -Name $ResourceGroupName -Force -Confirm:$false
+        Write-Output "VPN Deleted"
+    }
+    catch {
+        Write-Error "Error $($_.exception.message)"
+    }
+    
     exit
 }
 
@@ -49,11 +55,14 @@ if (!($resourceGroupObject))
         $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $region
 }
 
+$Password = Read-Host -Prompt "Please Enter your desired password" -AsSecureString
+
+
 $containerParams = @{
     Name = "shadowsocks"
-    ResourceGroupName = $resourceGroupObject.ResourceGroupName
-    Command = "/usr/local/bin/ssserver -k $($password) -m aes-256-cfb"
-    Location = $resourceGroupObject.Location
+    ResourceGroupName = $resourceGroupName
+    Command = "/usr/local/bin/ssserver -k $($Password | ConvertFrom-SecureString -AsPlainText) -m aes-256-cfb"
+    Location = $region
     Image = "oddrationale/docker-shadowsocks"
     IpAddressType = "public"
     Port = 8388
@@ -61,6 +70,9 @@ $containerParams = @{
 
 $containerGroup = New-AzContainerGroup @containerParams
 
-
-Write-Output $containerGroup.IpAddress
+if ($containerGroup.ProvisioningState -eq "Succeded") 
+    {
+        Write-Output "VPN Created Successfully!"
+        Write-Output "Connect ShadowSocks to $containerGroup.IpAddress on Port $containerGroup.Ports.PortProperty"  
+}
 
