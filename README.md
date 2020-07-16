@@ -11,6 +11,16 @@ Using this platform for a [SOCKS5](https://en.wikipedia.org/wiki/SOCKS) proxy se
 
 Azure Container Instances are billed on a per-second basis, therefore this will likely be a cheaper solution for most users who rely on monthly, paid VPN services
 
+## Disclaimer
+
+This is not a tunnel-based VPN service like Nord or other comercial offerings and Microsoft will block some protocols (like bittorrent for example).  
+
+The intent of this project is to provide users privacy protection over the web as it relates to your IP address and Geolocation.  Many websites track and coalate personal information by IP address, thus by proxying their HTTP/HTTPS connections through this service, users can gain additional privacy, or spoof the geographical region browser traffic is coming from.  
+
+Be warned: **THIS PROJECT WILL NOT PROTECT YOU FROM ANYTHING ILLEGAL** and if illegal activity is discovered, it could be traced back to your real physical IP.
+
+**THE USER ASSUMES ALL LIABILITY FOR HOW THIS PROJECT IS USED, AND FOR ANY ILLEGAL BEHAVIOR THAT OCCURS**
+
 ## Deployment
 
 There are multiple ways to work with this project, the most functional way is to use the [azuredeploy.sh](./azuredeploy.sh) script in this repo to deploy this project. **Note - ensure that you change the password in the [azuredeploy.parameters.json](./azuredeploy.parameters.json) file prior to using this script** and follow the instructions for API deployment in this README.
