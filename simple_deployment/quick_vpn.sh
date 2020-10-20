@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-export SUBSCRIPTION="mySubscriptionId"
+export SUBSCRIPTION="my Subcription ID"
 export REGION=$3
 
 USAGE="Usage: quickdeploy.sh -p <password> <region> OR quickdeploy.sh -stop"
@@ -69,7 +69,8 @@ if [ "$SSCHECK" != 1 ]; then
     printf "\nConnecting to VPN... \n"
     SOCKSCONF="{\"server\":\"$SERVICEIP\",\"server_port\":\"8388\",\"local_address\":\"127.0.0.1\",\"local_port\":\"1080\",\"password\":\"$SECRET\",\"timeout\":\"600\",\"method\":\"aes-256-cfb\"}"
     echo $SOCKSCONF > ~/.config/socks-config.json
-    sslocal -c ~/.config/socks-config.json
+    sslocal -c ~/.config/socks-config.json &
+    exit
 
 else
     printf "Connect shadowsocks client to $SERVICEIP"

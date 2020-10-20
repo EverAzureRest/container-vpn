@@ -1,11 +1,11 @@
-param (
 [cmdletbinding()]
-$password,
-$region,
-$ResourceGroupName="shadowsocks",
-$SubscriptionID="<mySubscription>",
-[switch]$delete
+param(
+    [parameter(Mandatory = $true)]$SubscriptionID,
+    $parameterFile = "azuredeploy.parameters.json",
+    $deploymentFile = "azuredeploy.json",
+    [parameter(Mandatory = $true)]$deploymentRegion
 )
+
 #Check PS Version - supports Powershell 6.1
 if($PSVersionTable.GitCommitId -lt 6.1.0)
     {
@@ -36,31 +36,13 @@ elseif ($session.Subscription -ne $subscriptionID) {
     Set-AzContext -Subscription $SubscriptionID
 }
 
-if ($delete){
-    Remove-AzResourceGroup -Name $ResourceGroupName -Force -Confirm:$false
-    exit
+$templateFileText = [System.IO.File]::ReadAllText($deploymentFile)
+
+$deploymentParams = @{
+    Name = "vpnServicesDeployment"
+    TemplateObject = (ConvertFrom-JSON $templateFileText -AsHashtable)
+    TemplateParameterFile = $parameterFile
+    Location = $deploymentRegion
 }
 
-Write-Debug -Message "Creating Resource Group if not exists..."
-$resourceGroupObject = get-AzResourceGroup -Name $ResourceGroupName -Location $region -ea 0
-
-if (!($resourceGroupObject))
-    {
-        $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $region
-}
-
-$containerParams = @{
-    Name = "shadowsocks"
-    ResourceGroupName = $resourceGroupObject.ResourceGroupName
-    Command = "/usr/local/bin/ssserver -k $($password) -m aes-256-cfb"
-    Location = $resourceGroupObject.Location
-    Image = "oddrationale/docker-shadowsocks"
-    IpAddressType = "public"
-    Port = 8388
-}
-
-$containerGroup = New-AzContainerGroup @containerParams
-
-
-Write-Output $containerGroup.IpAddress
-
+New-AzDeployment @deploymentParams

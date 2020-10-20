@@ -1,6 +1,6 @@
 #!/bin/bash
-export SUBSCRIPTION="<mysubscriptionID>"
-export KEYVAULTNAME="<mykeyvaultName>"
+export SUBSCRIPTION="my Subcription ID"
+export KEYVAULTNAME="my KeyVault name"
 export SECRETNAME="vpnwebhook"
 export DNSLABEL="myvpn"
 export ACTION=$1
@@ -35,13 +35,15 @@ if [ $ACTION == "start" ]; then
 
     PWD=$(az keyvault secret show -n vpnsecret --vault-name $KEYVAULTNAME --query "value" -o tsv)
 
-    SOCKSCONF="{\"server\":\"$SERVICEIP\",\"server_port\":\"8388\",\"local_address\":\"127.0.0.1\",\"local_port\":\"1080\",\"password\":\"$PWD\",\"timeout\":\"600\",\"method\":\"aes-256-cfb\"}"
+    SOCKSCONF="{\"server\":\"$SERVICEIP\",\"server_port\":\"8388\",\"local_address\":\"127.0.0.1\",\"local_port\":\"1080\",\"password\":\"$PWD\",\"timeout\":\"600\",\"method\":\"aes-256-gcm\"}"
 
     echo $SOCKSCONF > ~/.config/socks-config.json
 
     #connecting Shadowsocks client
     sslocal -c ~/.config/socks-config.json &&
     printf "shadowsocks connected - please set your browser proxy to 127.0.0.1:1080"
+
+    exit
 
 elif [ $ACTION == "stop" ]; then
 
