@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "[concat('azvpn', uniqueString(subscription().subscriptionId))]",
+            "defaultValue": "azvpn",
             "type": "string"
         },
         "storageAccountName": {
@@ -17,18 +17,6 @@
         "vpnSecret": {
             "defaultValue": "ThisisaWeakpassword!ChangeME",
             "type": "string"
-        },
-        "roleDefinitionName":{
-            "type": "string",
-            "defaultValue": "[guid(subscription().subscriptionId)]"
-        },
-        "sourceCodeRepositoryURL":{
-            "type": "string",
-            "defaultValue": "https://github.com/EverAzureRest/container-vpn"
-        }, 
-        "sourceCodeRepoBranch": {
-            "type": "string",
-            "defaultValue": "functionapp"
         },
         "resourceGroupName": {
             "type": "string",
@@ -47,14 +35,15 @@
         }
     },
     "variables": {
+        "roleDefinitionName": "[guid(subscription().subscriptionId)]"
     },
     "resources": [
         {
             "type": "Microsoft.Authorization/roleDefinitions",
-            "name": "[parameters('roleDefinitionName')]",
+            "name": "[variables('roleDefinitionName')]",
             "apiVersion": "2017-09-01",
             "properties":{
-                "roleName": "[concat('appServiceCustomRole', parameters('roleDefinitionName'))]",
+                "roleName": "[concat('appServiceCustomRole', ' ', variables('roleDefinitionName'))]",
                 "description": "Allows Managed Identity for the Function App to create Containter Resources in the Subscription", 
                 "type": "CustomRole",
                 "permissions":[
@@ -104,14 +93,8 @@
                     "vpnSecret": {
                         "value": "[parameters('vpnSecret')]"
                     },
-                    "sourceCodeRepositoryURL": {
-                        "value": "[parameters('sourceCodeRepositoryURL')]"
-                    },
-                    "sourceCodeRepoBranch": {
-                        "value": "[parameters('sourceCodeRepoBranch')]"
-                    },
                     "roleDefinitionName": {
-                        "value": "[parameters('roleDefinitionName')]"
+                        "value": "[variables('roleDefinitionName')]"
                     }
                 },
                 "templateLink":{

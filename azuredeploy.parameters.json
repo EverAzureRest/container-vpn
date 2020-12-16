@@ -5,9 +5,6 @@
     "vpnSecret": {
         "value": "ThisIsaWeakPassword!ChangeME"
     },
-    "sourceCodeRepositoryURL":{
-        "value": "https://github.com/EverAzureRest/container-vpn"
-    },
     "azureRegion": {
         "value": "eastus2"
     }

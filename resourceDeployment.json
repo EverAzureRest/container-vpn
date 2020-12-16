@@ -3,7 +3,6 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "functionAppName": {
-            "defaultValue": "[concat('azvpn', uniqueString(subscription().subscriptionId))]",
             "type": "string"
         },
         "storageAccountName": {
@@ -15,26 +14,18 @@
             "type": "string"
         },
         "vpnSecret": {
-            "defaultValue": "ThisisaWeakpassword!",
             "type": "string"
-        },
-        "sourceCodeRepositoryURL":{
-            "type": "string",
-            "defaultValue": "https://github.com/EverAzureRest/container-vpn"
-        }, 
-        "sourceCodeRepoBranch": {
-            "type": "string",
-            "defaultValue": "functionapp"
         },
         "roleDefinitionName": {
             "type": "string"
         }
     },
     "variables": {
+        "functionAppName": "[concat(parameters('functionAppName'), uniqueString(subscription().subscriptionId))]",
         "storageAccountName": "[concat(parameters('storageAccountName'), uniquestring(resourceGroup().id))]",
         "keyVaultName": "[concat(parameters('keyVaultName'), uniquestring(resourceGroup().id))]",
         "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', parameters('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
+        "identityResourceId": "[concat(resourceId('Microsoft.Web/sites', variables('functionAppName')), '/providers/Microsoft.ManagedIdentity/Identities/default')]",
         "resourceGroupName": "[resourceGroup().name]",
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionName'))]"
 
@@ -112,7 +103,7 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2016-09-01",
-            "name": "[parameters('functionAppName')]",
+            "name": "[variables('functionAppName')]",
             "location": "[resourceGroup().location]",
             "sku": {
                 "name": "Y1",
@@ -123,7 +114,7 @@
             },
             "kind": "functionapp",
             "properties": {
-                "name": "[parameters('functionAppName')]",
+                "name": "[variables('functionAppName')]",
                 "perSiteScaling": false,
                 "reserved": false,
                 "targetWorkerCount": 0,
@@ -133,10 +124,10 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2016-08-01",
-            "name": "[parameters('functionAppName')]",
+            "name": "[variables('functionAppName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
+                "[resourceId('Microsoft.Web/serverfarms', variables('functionAppName'))]",
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"                
             ],
             "kind": "functionapp",
@@ -162,11 +153,11 @@
                         },
                         {
                             "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(parameters('functionAppName'))]"
+                            "value": "[toLower(variables('functionAppName'))]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~2"
+                            "value": "~3"
                         },
                         {
                             "name": "FUNCTIONS_WORKER_RUNTIME",
@@ -184,32 +175,17 @@
                 },
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('functionAppName'), '.azurewebsites.net')]",
+                        "name": "[concat(variables('functionAppName'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('functionAppName'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(variables('functionAppName'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "resources": [
-                    {
-                        "apiVersion": "2016-08-01",
-                        "name": "web",
-                        "type": "sourcecontrols",
-                        "dependsOn": [
-                          "[resourceId('Microsoft.Web/sites/', parameters('functionAppName'))]"
-                        ],
-                        "properties": {
-                          "RepoUrl": "[parameters('sourceCodeRepositoryURL')]",
-                          "branch": "[parameters('sourceCodeRepoBranch')]",
-                          "IsManualIntegration": true
-                        }
-                   }
-                ],
-            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppName'))]",
+            "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionAppName'))]",
             "reserved": false,
             "clientAffinityEnabled": false,
             "clientCertEnabled": false,
@@ -224,7 +200,7 @@
             "apiVersion": "2017-09-01",
             "name": "[guid(resourceGroup().id, deployment().name)]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
             ],
             "properties":{
                 "roleDefinitionId": "[variables('roleDefinitionId')]",
