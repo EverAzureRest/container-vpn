@@ -23,7 +23,9 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@testing
+      - uses: actions/checkout@v2
+        with:
+          ref: testing
 
       - name: Azure Login
         uses: Azure/login@v1
@@ -51,14 +53,18 @@ jobs:
         with:
           inlineScript: export FANAME=$(az functionapp list --query "[?resourceGroup=='shadowsocks'].{Name:name}" -o tsv)
     
-      - uses: actions/checkout@functionapp
-      - name: 'checkout Function branch'
-        uses: thedoctor0/zip-release@functionapp
+      - uses: actions/checkout@v2
         with:
+          ref: functionapp
+          path: './functionapp'
+        
+      - uses: thedoctor0/zip-release@master
+        with:
+          directory: './functionapp'
           filename: 'release.zip'
           
       
-      - name: 'FunctionApp Deploy'
+      - name: Azure CLI Action
       - uses: Azure/cli@v1.0.0
         with:
           inlineScript: az functionapp deployment source config-zip --src release.zip -n $FANAME -g shadowsocks
