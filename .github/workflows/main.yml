@@ -52,9 +52,8 @@ jobs:
           inlineScript: export FANAME=$(az functionapp list --query "[?resourceGroup=='shadowsocks'].{Name:name}" -o tsv)
       
       - name: 'Checkout FunctionApp Repo'
-      - uses: actions/checkout@functionapp
-        uses: thedoctor0/zip-release@functionapp
-          with:
+      - uses: thedoctor0/zip-release@functionapp
+        with:
             filename: 'release.zip'
       
       - name: 'FunctionApp Deploy'
