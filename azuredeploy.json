@@ -32,7 +32,10 @@
         "nestedTemplateUri": {
             "type": "string",
             "defaultValue": "https://raw.github.com/EverAzureRest/container-vpn/master/resourceDeployment.json"
-        }
+        },
+        "userObjId": {
+            "type": "string"
+        },
     },
     "variables": {
         "roleDefinitionName": "[guid(subscription().subscriptionId)]"
@@ -95,6 +98,9 @@
                     },
                     "roleDefinitionName": {
                         "value": "[variables('roleDefinitionName')]"
+                    },
+                    "userObjId": {
+                        "value": "[parameters('userObjId')]"
                     }
                 },
                 "templateLink":{

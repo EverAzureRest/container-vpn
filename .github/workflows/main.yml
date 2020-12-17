@@ -41,7 +41,7 @@ jobs:
       - uses: Azure/cli@v1.0.0
         with:
           # Specify the script here
-          inlineScript: az deployment sub create -n ${{ GITHUB_ACTION }} --location ${{ env.location }} --template-file ./azuredeploy.json --parameters ./azuredeploy.parameters.json --parameters vpnSecret=${{ secrets.VPN_SECRET }} --parameters azureRegion=${{ env.location }} --parameters $USEROBJID
+          inlineScript: az deployment sub create -n test-deployment --location ${{ env.location }} --template-file ./azuredeploy.json --parameters ./azuredeploy.parameters.json --parameters vpnSecret=${{ secrets.VPN_SECRET }} --parameters azureRegion=${{ env.location }} --parameters userObjId=$USEROBJID
           # Azure CLI version to be used to execute the script. If not provided, latest version is used
           # azcliversion: # optional, default is latest
 

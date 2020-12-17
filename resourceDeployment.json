@@ -18,6 +18,9 @@
         },
         "roleDefinitionName": {
             "type": "string"
+        },
+        "userObjId": {
+            "type" : "string"
         }
     },
     "variables": {
@@ -53,6 +56,27 @@
                                 "get"
                             ],
                             "certificates":[]
+                        }
+                    },
+                    {
+                        "tenantId": "[subscription().tenantId]",
+                        "objectId": "[parameters('userObjId')]",
+                        "permissions": {
+                            "secrets": [
+                                "get",
+                                "list",
+                                "set",
+                                "delete",
+                                "purge"
+                            ],
+                            "certificates": [
+                                "get",
+                                "list",
+                                "delete",
+                                "create",
+                                "import",
+                                "update"
+                            ]
                         }
                     }
                 ]
