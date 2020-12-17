@@ -23,9 +23,6 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-        with:
-          ref: testing
 
       - uses: Azure/login@v1
         with:
@@ -36,7 +33,11 @@ jobs:
       # Runs a single command using the runners shell
       - uses: Azure/cli@v1.0.0
         with:
-          inlineScript: export USEROBJID=$(az ad user show --id ${{ env.Username }} --query objectId | tr -d '"')
+          inlineScript: export USEROBJID=$(az ad user show --id ${{ env.username }} --query objectId | tr -d '"')
+
+      - uses: actions/checkout@v2
+        with:
+          ref: testing
 
       - uses: Azure/cli@v1.0.0
         with:

@@ -34,7 +34,10 @@
             "defaultValue": "https://raw.github.com/EverAzureRest/container-vpn/master/resourceDeployment.json"
         },
         "userObjId": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "description": "Object ID of the user object that will be able to retrieve the secret from the Key Vault"
+            }
         }
     },
     "variables": {

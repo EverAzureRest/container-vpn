@@ -7,6 +7,9 @@
     },
     "azureRegion": {
         "value": "eastus2"
+    },
+    "userObjId": {
+        "value": ""
     }
 }
 }
