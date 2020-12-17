@@ -27,7 +27,6 @@ jobs:
         with:
           ref: testing
 
-      - name: Azure Login
       - uses: Azure/login@v1
         with:
           # Paste output of `az ad sp create-for-rbac` as value of secret variable: AZURE_CREDENTIALS
@@ -35,12 +34,10 @@ jobs:
           # Set this value to true to enable Azure PowerShell Login in addition to Az CLI login
           # enable-AzPSSession: # optional
       # Runs a single command using the runners shell
-      - name: Azure CLI Action
       - uses: Azure/cli@v1.0.0
         with:
           inlineScript: export USEROBJID=$(az ad user show --id ${{ env.Username }} --query objectId | tr -d '"')
 
-      - name: Azure CLI Action
       - uses: Azure/cli@v1.0.0
         with:
           # Specify the script here
@@ -48,7 +45,6 @@ jobs:
           # Azure CLI version to be used to execute the script. If not provided, latest version is used
           # azcliversion: # optional, default is latest
 
-      - name: Azure CLI Action
       - uses: Azure/cli@v1.0.0
         with:
           inlineScript: export FANAME=$(az functionapp list --query "[?resourceGroup=='shadowsocks'].{Name:name}" -o tsv)
@@ -63,8 +59,6 @@ jobs:
           directory: './functionapp'
           filename: 'release.zip'
           
-      
-      - name: Azure CLI Action
       - uses: Azure/cli@v1.0.0
         with:
           inlineScript: az functionapp deployment source config-zip --src release.zip -n $FANAME -g shadowsocks
