@@ -35,7 +35,7 @@
         },
         "userObjId": {
             "type": "string"
-        },
+        }
     },
     "variables": {
         "roleDefinitionName": "[guid(subscription().subscriptionId)]"
